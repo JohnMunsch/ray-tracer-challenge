@@ -1,4 +1,4 @@
-import { Point, Tuple, Vector } from './tuple.mjs';
+import { Point, Tuple, Vector } from './features/step-definitions/tuple.mjs';
 
 class Projectile {
   constructor(position, velocity) {

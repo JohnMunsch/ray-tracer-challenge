@@ -50,6 +50,40 @@ export class Tuple {
   }
 }
 
+export class Color extends Tuple {
+  constructor(r, g, b) {
+    super(r, g, b, 0.0);
+  }
+
+  get red() {
+    return this.x;
+  }
+
+  get green() {
+    return this.y;
+  }
+
+  get blue() {
+    return this.z;
+  }
+
+  set red(value) {
+    this.x = value;
+  }
+
+  set green(value) {
+    this.y = value;
+  }
+
+  set blue(value) {
+    this.z = value;
+  }
+
+  static hadamardProduct(a, b) {
+    return new Color(a.x * b.x, a.y * b.y, a.z * b.z);
+  }
+}
+
 export class Point extends Tuple {
   constructor(x, y, z) {
     super(x, y, z, 1.0);
