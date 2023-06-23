@@ -269,10 +269,7 @@ Then('lines {int}-{int} of {word} are', function (int, int2, key, docString) {
   const lines = this[key].split('\n');
   const expectedLines = docString.split('\n');
 
-  console.log(lines, lines.length);
-  console.log(expectedLines, expectedLines.length);
   range(int, int2).forEach((i) => {
-    console.log(lines[i - 1], expectedLines[i - int]);
     assert(lines[i - 1] === expectedLines[i - int]);
   });
 });

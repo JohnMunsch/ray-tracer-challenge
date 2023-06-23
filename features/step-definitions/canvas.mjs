@@ -27,6 +27,21 @@ export class Canvas {
     return Math.round(float * 255);
   }
 
+  splitLines(line, maxLength) {
+    if (line.length <= maxLength) {
+      return [line];
+    }
+
+    const splitIndex = line.lastIndexOf(' ', maxLength);
+
+    const firstLine = line.slice(0, splitIndex);
+    const secondLine = line.slice(splitIndex + 1);
+
+    const furtherLines = this.splitLines(secondLine, maxLength);
+
+    return [firstLine, ...furtherLines];
+  }
+
   toPpm() {
     const lines = [];
 
@@ -47,9 +62,10 @@ export class Canvas {
         line.push(`${red} ${green} ${blue}`);
       }
 
-      // If necessary, split the line into multiple lines so that each line is 70 characters long.
+      // Recursively split lines that are too long.
+      const splitLines = this.splitLines(line.join(' '), 70);
 
-      lines.push(line.join(' '));
+      lines.push(...splitLines);
     }
 
     return lines.join('\n');
