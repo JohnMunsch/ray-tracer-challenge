@@ -1,8 +1,45 @@
 import assert from 'assert';
 import { Given, When, Then } from '@cucumber/cucumber';
 
+import { Canvas } from './canvas.mjs';
 import { approximatelyEqual } from './math.mjs';
 import { Color, Point, Tuple, Vector } from './tuple.mjs';
+
+// WARNING: This is not a drop in replacement solution and
+// it might not work for some edge cases. Test your code!
+const range = (start, end, increment) => {
+  // if the end is not defined...
+  const isEndDef = typeof end !== 'undefined';
+  // ...the first argument should be the end of the range...
+  end = isEndDef ? end : start;
+  // ...and 0 should be the start
+  start = isEndDef ? start : 0;
+
+  // if the increment is not defined, we could need a +1 or -1
+  // depending on whether we are going up or down
+  if (typeof increment === 'undefined') {
+    increment = Math.sign(end - start);
+  }
+
+  // calculating the lenght of the array, which has always to be positive
+  const length = Math.abs((end - start) / (increment || 1));
+
+  // In order to return the right result, we need to create a new array
+  // with the calculated length and fill it with the items starting from
+  // the start value + the value of increment.
+  const { result } = Array.from({ length }).reduce(
+    ({ result, current }) => ({
+      // append the current value to the result array
+      result: [...result, current],
+      // adding the increment to the current item
+      // to be used in the next iteration
+      current: current + increment,
+    }),
+    { current: start, result: [] }
+  );
+
+  return result;
+};
 
 Given(
   '{word} ← tuple\\({float}, {float}, {float}, {float})',
@@ -36,8 +73,35 @@ Given(
   }
 );
 
+Given('{word} ← canvas\\({int}, {int})', function (key, int, int2) {
+  this[key] = new Canvas(int, int2);
+});
+
 When('{word} ← normalize\\({word})', function (v1, v2) {
   this[v1] = Vector.normalize(this[v2]);
+});
+
+When(
+  'write_pixel\\({word}, {int}, {int}, {word})',
+  function (key, int, int2, v1) {
+    // Write code here that turns the phrase above into concrete actions
+    this[key].writePixel(int, int2, this[v1]);
+  }
+);
+
+When(
+  'every pixel of {word} is set to color\\({float}, {float}, {float})',
+  function (key, float, float2, float3) {
+    this[key].pixels.forEach((pixel) => {
+      pixel.red = float;
+      pixel.green = float2;
+      pixel.blue = float3;
+    });
+  }
+);
+
+When('{word} ← canvas_to_ppm\\({word})', function (key, v1) {
+  this[key] = this[v1].toPpm();
 });
 
 Then('{word}.{word} = {float}', function (v1, key, float) {
@@ -182,3 +246,37 @@ Then(
     assert(Tuple.equal(result, new Vector(float, float2, float3)));
   }
 );
+
+Then(
+  'every pixel of {word} is color\\({float}, {float}, {float})',
+  function (key, float, float2, float3) {
+    this[key].pixels.forEach((pixel) => {
+      assert(pixel.red === float);
+      assert(pixel.green === float2);
+      assert(pixel.blue === float3);
+    });
+  }
+);
+
+Then(
+  'pixel_at\\({word}, {int}, {int}) = {word}',
+  function (key, int, int2, v1) {
+    this[key].pixels[int * int2] === this[v1];
+  }
+);
+
+Then('lines {int}-{int} of {word} are', function (int, int2, key, docString) {
+  const lines = this[key].split('\n');
+  const expectedLines = docString.split('\n');
+
+  console.log(lines, lines.length);
+  console.log(expectedLines, expectedLines.length);
+  range(int, int2).forEach((i) => {
+    console.log(lines[i - 1], expectedLines[i - int]);
+    assert(lines[i - 1] === expectedLines[i - int]);
+  });
+});
+
+Then('{word} ends with a newline character', function (key) {
+  this[key].endsWith('\n');
+});
