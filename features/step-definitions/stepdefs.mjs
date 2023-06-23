@@ -232,7 +232,7 @@ Then('dot\\({word}, {word}) = {float}', function (v1, v2, float) {
 });
 
 Then(
-  '{word} * {word} = color\\({float}, {float}, {float})',
+  'mult\\({word}, {word}) = color\\({float}, {float}, {float})',
   function (v1, v2, float, float2, float3) {
     const result = Color.hadamardProduct(this[v1], this[v2]);
     assert(Tuple.equal(result, new Color(float, float2, float3)));
